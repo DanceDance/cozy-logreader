@@ -32,16 +32,18 @@ killCommands = (commands) ->
 # given socket.
 startProcess = (socket, fileName) ->
 
-    args = ['-f', "#{config.logPath}/#{fileName}"]
+    args = ['-f', "#{fileName}"]
     command = spawn "tail", args
-
+    slashPos = fileName.lastIndexOf("/")
+    #filePath = fileName.substr(0, slashPos + 1)
+    fileNameOnly = fileName.substr(slashPos + 1, fileName.length)
     # replace . by - to avoid conflicts in the frontend
-    fileSlug = fileName.replace /\./g, '-'
+    fileSlug = fileNameOnly.replace /\./g, '-'
 
     command.stdout.on 'data', (data) ->
-        sendData(socket, data, fileName, fileSlug, 'stdout')
+        sendData(socket, data, fileNameOnly, fileSlug, 'stdout')
     command.stderr.on 'data', (data) ->
-        sendData(socket, data, fileName, fileSlug, 'stderr')
+        sendData(socket, data, fileNameOnly, fileSlug, 'stderr')
 
     commands[fileName] = command
 
@@ -50,15 +52,16 @@ startProcess = (socket, fileName) ->
 # a tail -f for each of them to given socket.
 # When socket is disconnected, all tail -f process are stopped.
 io.sockets.on "connection", (socket) ->
-
-    fs.readdir config.logPath, (err, files) ->
-
-        if !err
-            for fileName in files
-                startProcess(socket, fileName)
-
-        else
-            console.log err
+    for fileName in config.logFiles
+         startProcess(socket, fileName)
+# fs.readdir config.logPath, (err, files) ->
+#
+#        if !err
+#            for fileName in files
+#                startProcess(socket, fileName)
+#
+#        else
+#            console.log err
 
     socket.on "disconnect", () ->
         console.log "Client has disconnected, closing the processes..."

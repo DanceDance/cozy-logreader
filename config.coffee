@@ -1,4 +1,4 @@
 config =
-        logPath: '/usr/local/var/log/cozy/'
+        logFiles: ['files/test1.log', 'files/test.log']
 
 module.exports = config
