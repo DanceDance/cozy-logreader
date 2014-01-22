@@ -32,7 +32,7 @@ killCommands = (commands) ->
 # given socket.
 startProcess = (socket, fileName) ->
 
-    args = ['-f', "#{fileName}"]
+    args = ['-f', "#{fileName}", '-n 500']
     command = spawn "tail", args
     slashPos = fileName.lastIndexOf("/")
     #filePath = fileName.substr(0, slashPos + 1)
